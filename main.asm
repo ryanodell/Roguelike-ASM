@@ -1,6 +1,6 @@
 ; Vim notes: Undo: 'u' redo: 'ctrl + r'
-
-;
+; Tmux notes: 'ctrl+b "' open terminal. ctrl+b arrow key to change. ctrl+d to close
+;	      'ctrl+b'	alt + arrow key to shrink or grow
 ; MACROS
 ;
 %define PLAYER_NAME_LEN	16
