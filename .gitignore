@@ -1,0 +1,35 @@
+# Object files
+*.o
+
+# Executables
+*.out
+*.bin
+*.elf
+*.exe
+
+# Debugging files
+*.lst
+*.map
+*.sym
+*.dbg
+*.core
+core.*
+
+# Editor/IDE temp files
+*~
+*.swp
+*.swo
+*.bak
+
+# VSCode settings
+.vscode/
+
+# Build folders
+build/
+dist/
+
+# Logs
+*.log
+
+# Coredumps
+core
