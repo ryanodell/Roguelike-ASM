@@ -1,4 +1,5 @@
 ; Vim notes: Undo: 'u' redo: 'ctrl + r'
+;	     copy: select '"+y"
 ; Tmux notes: 'ctrl+b "' open terminal. ctrl+b arrow key to change. ctrl+d to close
 ;	      'ctrl+b'	alt + arrow key to shrink or grow
 ; MACROS
@@ -39,6 +40,17 @@ SECTION .data
 	invalid_choice		db	"Invalid choice. Try again.", 10
 	invalid_choice_len	equ	$-invalid_choice
 
+	class_warrior		db	"Warrior", 0
+	class_warrior_len	equ	$-class_warrior
+	class_mage		db	"Mage", 0
+	class_mage_len		equ	$-class_mage
+	class_rogue		db	"Rogue", 0
+	class_rogue_len		equ	$-class_rogue
+
+	game_begin_mid_pre	db	" the ", 0
+	game_begin_mid_pre_len	equ	$-game_begin_mid_pre
+	game_begin_suffix	db	", this is where your story begins...", 10
+	game_begin_suffix_len	equ	$-game_begin_suffix
 
 ;
 ; RESERVATIONS
@@ -48,6 +60,7 @@ SECTION .bss
 	response_message	resb	128			; Reserve bytes for full sentence
 	player_class		resb	1			; Store 1, 2, or 3
 	input_buffer		resb	2			; 2 bytes to read 1 char + newLine
+	game_begin_message	resb	200			; Just 200 for now, will tweak this later
 
 ;
 ; CODE
@@ -97,9 +110,60 @@ _start:
 
 	call _getClass
 
+	call _showGameBeginMessage
+
 	mov rax, SYS_EXIT		; Places 60 in the rax register to indicate 'sys_exit'
-	mov rdi, 0			; Exit code 0
-	syscall				; Invoke SYS_EXIT
+	mov rdi, 0			; Exit code 0SECTION .data
+	syscall
+
+_showGameBeginMessage:
+	push rcx
+	mov rdi, game_begin_message	; Our destination
+	xor rbx, rbx			; Reset
+	mov rsi, player_name
+	call _copy_name_until_newline
+	
+	mov rsi, game_begin_mid_pre
+	mov rcx, game_begin_mid_pre_len
+	call _copy
+
+	mov al, [player_class]
+	cmp al, '1'
+	je .copy_warrior
+	cmp al, '2'
+	je .copy_mage
+	cmp al, '3'
+	je .copy_rogue
+
+	.copy_warrior:
+		mov rsi, class_warrior
+		mov rcx, class_warrior_len
+		call _copy
+		jmp .done_class_copy
+	.copy_mage:
+		mov rsi, class_mage
+		mov rcx, class_mage_len
+		call _copy
+		jmp .done_class_copy
+	.copy_rogue:
+		mov rsi, class_rogue
+		mov rcx, class_rogue_len
+		call _copy
+		jmp .done_class_copy
+
+	
+	.done_class_copy:
+		mov rsi, game_begin_suffix
+		mov rcx, game_begin_suffix_len
+		call _copy
+
+		mov rax, SYS_WRITE
+		mov rdi, STDOUT
+		mov rsi, game_begin_message
+		mov rdx, rbx
+		syscall
+		pop rcx
+		ret
 
 
 _getClass:
