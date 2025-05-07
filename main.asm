@@ -33,12 +33,21 @@ SECTION .data
 	msg_suffix		db	", tell me what class you wish to play", 10
 	msg_suffix_len		equ	$-msg_suffix
 
+	class_prompt		db	"Choose your class:", 10, "1. Warrior", 10, "2. Mage", 10, "3. Rogue", 10, "> ", 0
+	class_prompt_len	equ	$-class_prompt
+
+	invalid_choice		db	"Invalid choice. Try again.", 10
+	invalid_choice_len	equ	$-invalid_choice
+
+
 ;
 ; RESERVATIONS
 ;
 SECTION .bss
 	player_name		resb	PLAYER_NAME_LEN
 	response_message	resb	128			; Reserve bytes for full sentence
+	player_class		resb	1			; Store 1, 2, or 3
+	input_buffer		resb	2			; 2 bytes to read 1 char + newLine
 
 ;
 ; CODE
@@ -86,9 +95,47 @@ _start:
 	mov rdx, rbx			; rbx = total length
 	syscall
 
+	call _getClass
+
 	mov rax, SYS_EXIT		; Places 60 in the rax register to indicate 'sys_exit'
 	mov rdi, 0			; Exit code 0
 	syscall				; Invoke SYS_EXIT
+
+
+_getClass:
+	.choose_class:
+		mov rax, SYS_WRITE
+		mov rdi, STDOUT
+		mov rsi, class_prompt
+		mov rdx, class_prompt_len
+		syscall
+
+		mov rax, SYS_READ
+		mov rdi, STDIN
+		mov rsi, input_buffer
+		mov rdx, 2
+		syscall
+
+		mov al, [input_buffer]
+		cmp al, '1'
+		je .store_choice
+		cmp al, '2'
+		je .store_choice
+		cmp al, '3'
+		je .store_choice
+
+		; invalid choice
+		mov rax, SYS_WRITE
+		mov rdi, STDOUT
+		mov rsi, invalid_choice
+		mov rdx, invalid_choice_len
+		syscall
+		jmp .choose_class
+
+	.store_choice:
+		mov [player_class], al
+		ret
+
 
 
 _getName:
