@@ -1,5 +1,6 @@
 # Executable
 main
+game
 
 # Object files
 *.o
