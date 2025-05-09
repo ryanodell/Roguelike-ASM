@@ -1,3 +1,4 @@
+%include "constants.inc"
 %include "macros.inc"
 
 section .data
@@ -9,7 +10,7 @@ section .text
 	global _start
 
 _start:
-	mov rax, message
+	; mov rax, message
 	print message
 
 	exit

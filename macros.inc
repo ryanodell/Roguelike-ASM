@@ -27,12 +27,3 @@ section .bss
 	mov rdi, 0
 	syscall
 %endmacro
-
-;
-; CONSTANTS
-;
-SYS_WRITE	equ	1
-SYS_EXIT	equ	60
-SYS_READ	equ	0
-STDOUT		equ	1
-STDIN		equ	0
